@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\UserController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -35,6 +36,12 @@ Route::group(['middleware'=>['auth']], function(){
             Route::post('product/{id}', 'update')->name('product.update');
             Route::delete('/product/{id}', 'destroy')->name('product.destroy');
         });
+
+        Route::controller(UserController::class)->group(function()
+        {
+            Route::get('/user', 'index')->name('user.index');
+            Route::delete('/user/{user}', 'destroy')->name('user.destroy');
+            });
     });
     
 
@@ -43,8 +50,9 @@ Route::group(['middleware'=>['auth']], function(){
         Route::get('/order/create', 'create')->name('order.create');
         Route::post('/order', 'store')->name('order.store');
         Route::get('order', 'index')->name('order.index');
-        Route::get('order/{id}/edit', 'edit')->name('order.edit');
-        Route::post('order/{id}', 'update')->name('order.update');
+        Route::get('order/{order}/edit', 'edit')->name('order.edit');
+        Route::post('order/{order}', 'update')->name('order.update');
+        Route::delete('/order/{order}', 'destroy')->name('order.destroy');
     });
 
 });

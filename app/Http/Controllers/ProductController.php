@@ -13,9 +13,12 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         $products = Product::with('orders')->get();
+        if($request->by_order == 'no_orders'){
+            $products = Product::with('orders')->whereDoesntHave('orders')->get();
+        }
         return view('products.index', compact('products'));
     }
 
@@ -110,3 +113,11 @@ class ProductController extends Controller
         
     }
 }
+
+// public function destroy(Product $product){}
+// if($product->orders()->count()===0){
+//     $product->delete();
+//     return redirect();
+// }else{
+//     return redirect() "failed"
+// }

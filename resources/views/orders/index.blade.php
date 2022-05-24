@@ -7,12 +7,19 @@
         <p>{{ $message}}</p>
     </div>
     @endif
+    
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header">{{ __('My orders') }}</div>
                 <a class= "btn btn-primary" href="{{route('order.create')}}">Create new order</a>
-
+                @if(Auth::user()->role_id === 1)    
+                <form action="{{route('order.index')}}" method="GET">
+                    <label for="all_orders">Show all orders</label>
+                    <input name="all_orders" type="checkbox" value="all_orders">
+                    <input type="submit" value="Filter">
+                </form>
+                @endif
                 <div class="card-body">
                 <table class="table table-bordered">
                         <thead>
@@ -36,7 +43,16 @@
                                     <td>{{ $order->order_amount }}</td>
                                     <td>{{ $order->created_at }}</td>
                                     <td><a href="{{route('order.edit', $order->id)}}"><i class="fa-solid fa-pen-to-square"></i></a>
-                                    <a href="#"><i class="fa-solid fa-trash-can"></i></a></td>
+                                    @if(Auth::user()->role_id === 1)  
+                                    <form class="d-inline-block" action="{{ route('order.destroy', $order->id) }}" method="POST">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="btn">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
+                                    </form>
+                                    @endif
+                                </td>
                                 </tr>
                                 @endforeach
                         </tbody>

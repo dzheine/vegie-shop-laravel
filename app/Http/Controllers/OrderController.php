@@ -16,13 +16,19 @@ class OrderController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-       $orders = Order::with('products')->where('user_id', auth()->id())->get();
-      //var_dump($orders);
-       return view('orders.index', compact('orders'));
+        $orders = Order::with('products')->where('user_id', auth()->id())->get();
+        
+        if(auth()->user()->role_id ===1){
+            if($request->all_orders == 'all_orders'){
+                $orders = Order::with('products')->get();
+            } 
+        }
+        return view('orders.index', compact('orders'));
     }
-
+    
+  
     /**
      * Show the form for creating a new resource.
      *
@@ -84,11 +90,11 @@ class OrderController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Order $order)
     {
-        // $orders = Order::findOrFail($id);
-
-        // return view('order.edit', compact('orders'));
+        $selectedProducts = $order->products()->pluck('product_id')->toArray();
+        $products = Product::all();
+        return view('orders.edit', compact('selectedProducts', 'order', 'products'));
     }
 
     /**
@@ -98,14 +104,22 @@ class OrderController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Order $order)
     {
-        //  $orders = $request->validate([
-        //     'name' => 'required|max:255',
-        //     'price' => 'required'
-        // ]);
-        // Order::whereId($id)->update($orders);
-        // return redirect()->route('order.index')->with('success', 'Order Updated');
+        $order_amount = 0;
+        $order_products = [];
+        foreach($request->product as $product){
+                array_push($order_products, intval($product));
+                $price = Product::where('id', intval($product))->value('price');
+                $order_amount  += $price;
+        }
+        $order->order_amount = $order_amount;
+        $order->update();
+
+        $order->products()->sync($order_products);
+
+        return redirect()->route('order.index')->with('success', 'Order Updated');
+
     }
 
     /**
@@ -114,8 +128,11 @@ class OrderController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Order $order)
     {
-        //
+        $order->products()->sync([]);
+        $order->delete();
+        return redirect()->route('order.index')->with('success', 'Order deleted successfully');
+    
     }
 }
