@@ -12,9 +12,12 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         $users = User::with('orders')->get();
+        if($request->by_name == 'by_name'){
+            $users = User::orderBy('name')->get();
+        }
         return view('users.index', compact('users'));
     }
 

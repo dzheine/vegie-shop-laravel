@@ -17,7 +17,12 @@
                         <p>{{ $message}}</p>
                     </div>
                     @endif
-                    
+                    <form action="{{route('user.index')}}" method="GET">
+                        <label for="by_name">Show user by name</label>
+                        <input name="by_name" type="checkbox" value="by_name">
+                        <input type="submit" value="Filter">
+
+                    </form>
                     <table class="table table-bordered">
                         <thead>
                             <tr>
